@@ -21,5 +21,5 @@ This project implements a Continuous Integration and Continuous Deployment (CI/C
 ## Installation
 1. Clone the Repository:
 ```bash
-git clone https://github.com/your-org/your-repo.git
-cd your-repo
+git clone https://github.com/GiteshWork/ci-cd.git
+
