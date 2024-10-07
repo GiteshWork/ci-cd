@@ -13,56 +13,44 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '20'
-
-    - name: Install dependencies
-      run:  npm install
-  
     - name: Build Docker Image
-      run:  DOCKER_BUILDKIT=1 sudo docker build -t ${{secrets.IMAGE_NAME}} .
-    
-    - name: Tag Docker Image
-      run:  sudo docker tag ${{secrets.IMAGE_NAME}} ${{secrets.REGISTRY}}/${{secrets.IMAGE_NAME}}
-      
-    - name: Push docker image
-      run:  sudo docker push ${{secrets.REGISTRY}}/${{secrets.IMAGE_NAME}}
+      run: DOCKER_BUILDKIT=1 sudo docker build -t ${{secrets.IMAGE_NAME}} .
 
-    - name: Pull and run docker image in server 
-      run:  
+    - name: Tag Docker Image
+      run: sudo docker tag ${{secrets.IMAGE_NAME}} ${{secrets.REGISTRY}}/${{secrets.IMAGE_NAME}}
+      
+    - name: Push Docker Image
+      run: sudo docker push ${{secrets.REGISTRY}}/${{secrets.IMAGE_NAME}}
+
+    - name: Pull and Run Docker Image on Server 
+      run: |
         ssh -o StrictHostKeyChecking=no ${{secrets.SSH_USER}}@${{secrets.SSH_SERVER}} << 'EOF'
         
-    - name: Deploying docker container
-      run: |
-       #!/bin/bash
-
-        IMAGE_NAME="${{ secrets.IMAGE_NAME}}"
-        REGISTRY="${{ secrets.REGISTRY}}"
-        TARGET_PORT="${{ secrets.TARGET_PORT}}"
+        IMAGE_NAME="${{ secrets.IMAGE_NAME }}"
+        REGISTRY="${{ secrets.REGISTRY }}"
+        TARGET_PORT="${{ secrets.TARGET_PORT }}"
         CONTAINER_NAME="${{ secrets.CONTAINER_NAME }}"
 
-       # Pull the latest Docker image
+        # Pull the latest Docker image
         echo "Pulling Docker image..."
         if ! docker pull $REGISTRY/$IMAGE_NAME; then
           echo "Failed to pull Docker image!" >&2
           exit 1
         fi
 
-       # Stop and remove any existing container with the same name
+        # Stop and remove any existing container with the same name
         if [ "$(docker ps -a -q -f name=$CONTAINER_NAME)" ]; then
           echo "Stopping and removing existing container..."
           docker stop $CONTAINER_NAME || true
           docker rm $CONTAINER_NAME || true
-        fi  
+        fi
 
         # Run the new Docker container
         echo "Running Docker container..."
         if ! docker run -d --name $CONTAINER_NAME -p $TARGET_PORT:8080 $REGISTRY/$IMAGE_NAME; then
           echo "Failed to start new Docker container!" >&2
           exit 1
-        fi 
+        fi
 
-          echo "Deployment completed successfully!"
-      shell: bash
+        echo "Deployment completed successfully!"
+        EOF
