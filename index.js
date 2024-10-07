@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express();
-const port = 3000;
+const port = 8080;
 
 app.use(express.json());
 
@@ -8,7 +8,7 @@ app.use(express.json());
 app.get('/', (req, res) => res.send('Hello, CI/CD World!'));
 
 app.listen(port, () => {
-  console.log(`App listening at http://localhost:${port}`);
+  console.log(`App listening at http://192.168.0.13:${port}`);
 });
 
 // CRUD Routes for "items"
