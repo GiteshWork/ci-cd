@@ -44,7 +44,7 @@ pipeline {
             steps {
                 script {
                     echo 'Starting backend server...'
-                    bat 'npm start'
+                    bat 'start cmd /c "npm start"'
                 }
             }
         }
