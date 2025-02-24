@@ -1,0 +1,61 @@
+pipeline {
+    agent {
+        node {
+            label 'gitesh_srfc' // Specify the node name here
+        }
+    }
+    
+    environment {
+        NODEJS_VERSION = '16' // Change this based on your Node.js version
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+        
+        // stage('Install Dependencies') {
+        //     steps {
+        //         script {
+        //             def nodeInstalled = bat(script: "where node", returnStatus: true) == 0
+        //             if (!nodeInstalled) {
+        //                 echo 'Please install Node.js manually on Windows agent.'
+        //             }
+        //             bat 'npm install'
+        //         }
+        //     }
+        // }
+        
+        // stage('Run Tests') {
+        //     steps {
+        //         bat 'npm test'
+        //     }
+        // }
+        
+        // stage('Build') {
+        //     steps {
+        //         bat 'npm run build'
+        //     }
+        // }
+        
+        stage('Start Backend') {
+            steps {
+                script {
+                    echo 'Starting backend server...'
+                    bat 'npm start'
+                }
+            }
+        }
+    }
+    
+    post {
+        success {
+            echo 'Pipeline executed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed!'
+        }
+    }
+}
